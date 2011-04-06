@@ -6,6 +6,8 @@ var  express = require("express"),
      config = require("./config");
      QRCode = require("qrcode"),
      form = require("connect-form");
+     
+var postmark = require("postmark-api")(config.postmark_key);
 
 var app = express.createServer(
   form({ keepExtensions: true })
