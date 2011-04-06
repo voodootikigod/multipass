@@ -45,17 +45,19 @@ app.get("/"+(config.prefix)+"/notify", function (req,res) {
       for (var i = 0; i< docs.total_rows; i++) {
         if (i == 0){
           var doc = docs.rows[i].doc;
-          (function (fn) {
+          (function (ldoc, fn) {
             QRCode.save((__dirname+"/public/"+fn+".png"), config.base_url+"/"+doc._id, function (error,canvas) {
               
+              var html = config.template.replace(/{{first_name}}/g, ldoc.first_name).replace(/{{last_name}}/g, ldoc.last_name).replace(/{{img_url}}/g, config.base_url+"/"+fn+".png");
+              
               postmark.send({
-                "From": "melissa@github.com",
-                "To": "chris@jsconf.com",
-                "Subject": "Your Access Pass To The CodeConf Parties",
-                "HtmlBody": "<html><head></head><body><p>Attached is your QR Code for access to the parties DO NOT LEAVE WITHOUT THIS. You will not be let in -- ever.</p><p><img src='"+config.base_url+"/"+fn+".png'/></body></html>"
+                "From": config.postmark_from,
+                "To": ldoc.email,
+                "Subject": config.subject,
+                "HtmlBody": html
               }, function () { console.log(arguments) });
             });
-          })(crypto.createHash('md5').update("" + (doc._id)).digest("hex"))
+          })(doc, crypto.createHash('md5').update("" + (doc._id)).digest("hex"))
         }
       }
       res.send("QR-ed em");
