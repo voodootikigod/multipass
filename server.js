@@ -66,7 +66,7 @@ app.get("/"+(config.prefix)+"/notify", function (req,res) {
 })
 
 app.get("/"+(config.prefix)+"/load", function (req,res) {
-  res.send('<html><head><title>Octocat Up</title></head><body>'
+  res.send('<html><head><title>FEED ME!</title></head><body>'
       + '<form method="post" action="'+(config.prefix)+'/load" enctype="multipart/form-data">'
       + '<p>File: <input type="file" name="toload" /></p>'
       + '<p><input type="submit" value="Upload" /></p>'
