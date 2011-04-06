@@ -83,8 +83,9 @@ app.post("/"+(config.prefix)+"/load", function (req,res) {
       if (err) {
         next(err);
       } else {
-        fs.readFile(files.toload.path, function (err, data) {
-          var lines = data.toString().split("\n");
+        fs.readFile(files.toload.path, function (err, fileBuffer) {
+          var data = fileBuffer.toString();
+          var lines = (data.indexOf("\n") >= 0) ? data.toString().split("\n") : data.toString().split("\r");
           lines.shift();
           var ll = lines.length;
           var bulk = {
@@ -109,7 +110,7 @@ app.post("/"+(config.prefix)+"/load", function (req,res) {
           var creq = couchdb_request({path: "_bulk_docs", method: "POST"});
           var doc = http.request(creq, function (cres) {
             if (cres.statusCode != 200 && cres.statusCode != 201) {
-              console.log("Did not load: ");
+              console.log("Did not load: "+bulk);
             } else { 
               res.redirect("/"+(config.prefix)+"/loaded");
             }
