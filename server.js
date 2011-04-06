@@ -50,7 +50,7 @@ app.get("/"+(config.prefix)+"/notify", function (req,res) {
           (function (ldoc, fn) {
             QRCode.save((__dirname+"/public/"+fn+".png"), config.base_url+"/"+doc._id, function (error,canvas) {
               
-              var html = config.template.replace(/{{first_name}}/g, ldoc.first_name).replace(/{{last_name}}/g, ldoc.last_name).replace(/{{img_url}}/g, config.base_url+"/"+fn+".png");
+              var html = config.template.replace(/{{first_name}}/g, ldoc.first_name).replace(/{{last_name}}/g, ldoc.last_name).replace(/{{image_url}}/g, config.base_url+"/"+fn+".png");
               
               postmark.send({
                 "From": config.postmark_from,
