@@ -73,6 +73,11 @@ app.get("/"+(config.prefix)+"/load", function (req,res) {
       + '</form></body></html>');
 });
 
+app.get("/"+(config.prefix)+"/loaded", function (req,res) {
+  res.send('<html><head><title>THANK YOU</title></head><body>'
+      + '<p>All your attendes are belong to us.</p>'
+      + '</body></html>');
+});
 app.post("/"+(config.prefix)+"/load", function (req,res) {
   req.form.complete(function(err, fields, files){
       if (err) {
@@ -106,7 +111,7 @@ app.post("/"+(config.prefix)+"/load", function (req,res) {
             if (cres.statusCode != 200 && cres.statusCode != 201) {
               console.log("Did not load: ");
             } else { 
-              res.redirect('/octocatup');
+              res.redirect("/"+(config.prefix)+"/loaded");
             }
           });
           doc.write(JSON.stringify(bulk));
