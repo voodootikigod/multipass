@@ -71,7 +71,7 @@ app.get("/"+(config.prefix)+"/notify", function (req,res) {
                 "Subject": config.subject,
                 "HtmlBody": html
               }, function () { console.log(arguments) });
-              markSent(doc);
+              markSent(ldoc);
             });
           })(doc, crypto.createHash('md5').update("" + (doc._id)).digest("hex"))
         }
