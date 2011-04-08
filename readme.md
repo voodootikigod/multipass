@@ -5,4 +5,16 @@ Multipass
 
 Due to the nature of this (and the rapid development) everything is obscured by a simple prefix which you set in your config.js (can be created from the config-tmpl.js file provided). The system uses [Postmark](http://www.postmarkapp.com) for all email delivery which allows you to send your first 1000 emails for free, so woo hoo.
 
+Requires:
+
+  * CouchDB server
+  * Postmark Account (and specifically API Key)
+  * A party.
+
+Dependencies:
+
+  * [express](http://expressjs.com/)
+  * [qrcode](https://github.com/soldair/node-qrcode)
+  * [canvas](https://github.com/learnboost/node-canvas)
+
 Quiver ladies, quiver.
