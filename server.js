@@ -33,6 +33,21 @@ function couchdb_request(obj) {
   return obj;
 }
 
+function markSent(doc) {
+  doc.sent_at = +(new Date);
+  var update = http.request(couchdb_request({path: doc._id, method: "PUT"}));
+  update.write(JSON.stringify(doc));
+  update.end();
+}
+
+function checkIn(doc) {
+  doc.checked_in_at = +(new Date);
+  var update = http.request(couchdb_request({path: doc._id, method: "PUT"}));
+  update.write(JSON.stringify(doc));
+  update.end();
+}
+
+
 
 app.get("/"+(config.prefix)+"/notify", function (req,res) {
   var cdbr = couchdb_request({path: "/_all_docs?include_docs=true"});
@@ -45,19 +60,18 @@ app.get("/"+(config.prefix)+"/notify", function (req,res) {
     docs_res.on("end", function () {
       var docs = JSON.parse(body);
       for (var i = 0; i< docs.total_rows; i++) {
-        if (i == 0){
-          var doc = docs.rows[i].doc;
+        var doc = docs.rows[i].doc;
+        if (!doc.sent_at) {
           (function (ldoc, fn) {
             QRCode.save((__dirname+"/public/"+fn+".png"), config.base_url+"/"+doc._id, function (error,canvas) {
-              
               var html = config.template.replace(/{{first_name}}/g, ldoc.first_name).replace(/{{last_name}}/g, ldoc.last_name).replace(/{{image_url}}/g, config.base_url+"/"+fn+".png");
-              
               postmark.send({
                 "From": config.postmark_from,
                 "To": ldoc.email,
                 "Subject": config.subject,
                 "HtmlBody": html
               }, function () { console.log(arguments) });
+              markSent(ldoc);
             });
           })(doc, crypto.createHash('md5').update("" + (doc._id)).digest("hex"))
         }
@@ -101,7 +115,7 @@ app.post("/"+(config.prefix)+"/load", function (req,res) {
             var sn = parts[1];
             
             if (email) {
-              bulk.docs.push({"_id": (""+sn+":"+email.replace(/[\@\.]/g,"_")).toLowerCase(), "checked": 0, "email": email, "first_name":fn, "last_name": sn});
+              bulk.docs.push({"_id": (""+sn+":"+email.replace(/[\@\.]/g,"_")).toLowerCase(), "checked_in_at": 0, "email": email, "first_name":fn, "last_name": sn});
             } else { 
               console.log(myline) 
             }
@@ -138,14 +152,11 @@ app.get('/:id', function(req, res){
         });
         cres.on('end', function () {
           ddoc = JSON.parse(doc);
-          if (ddoc.checked) {
+          if (ddoc.checked_in_at) {
             res.send("<html><head></head><body style='background:red; height: 100%;'><h1 style='color:white; font-weight:bold; text-align:center; font-size:80px;'>GTFO</h1></body></html>");
           } else {
             res.send("<html><head></head><body style='background:green; height: 100%;'><h1 style='color:white; font-weight:bold; text-align:center; font-size:80px;'>OK</h1></body></html>");
-            var update = http.request(couchdb_request({path: ddoc._id, method: "PUT"}));
-            ddoc.checked = 1;
-            update.write(JSON.stringify(ddoc));
-            update.end();
+            checkIn(ddoc);
           }
         });
       } else {
